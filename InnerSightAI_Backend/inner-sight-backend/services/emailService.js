@@ -9,16 +9,27 @@ const nodemailer = require('nodemailer');
 // ── Create transporter ────────────────────────────────────────
 function createTransporter() {
   if (!process.env.EMAIL_FROM || !process.env.EMAIL_APP_PASSWORD) {
-    return null; // Email not configured — log only
+    console.log("Missing email environment variables");
+    return null;
   }
 
-  return nodemailer.createTransport({
-    service: 'gmail',
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
     auth: {
       user: process.env.EMAIL_FROM,
       pass: process.env.EMAIL_APP_PASSWORD,
     },
   });
+
+  transporter.verify(function (error, success) {
+    if (error) {
+      console.error("SMTP Error:", error);
+    } else {
+      console.log("SMTP Server Ready");
+    }
+  });
+
+  return transporter;
 }
 
 // ── Email base template ───────────────────────────────────────
@@ -202,12 +213,18 @@ async function sendAdminNotification(email, count) {
     return;
   }
 
-  await transporter.sendMail({
-    from:    `"Inner Sight AI" <${process.env.EMAIL_FROM}>`,
-    to:      adminEmail,
-    subject: `New signup: ${email} (${count} total)`,
-    html:    adminNotifyHtml(email, count),
-  });
+  try {
+    const info = await transporter.sendMail({
+        from: `"${process.env.EMAIL_FROM_NAME || "Inner Sight AI"}" <${process.env.EMAIL_FROM}>`,
+        to: email,
+        subject: "Test",
+        html: "<h1>Hello</h1>"
+    });
+
+    console.log(info);
+} catch (err) {
+    console.error("SendMail Error:", err);
+    throw err;
 }
 
 module.exports = { sendWelcomeEmail, sendMoodResultEmail, sendAdminNotification };
