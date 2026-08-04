@@ -343,33 +343,32 @@ GET /api/admin/sessions
 
 ## Home Page
 
-(Add Screenshot)
+<img width="1681" height="921" alt="image" src="https://github.com/user-attachments/assets/8a407596-f11e-4bb1-beb3-afa3348abb1b" />
+
 
 ---
 
 ## Mood Quiz
 
-(Add Screenshot)
+<img width="1438" height="881" alt="image" src="https://github.com/user-attachments/assets/4d9dce8d-59d5-4f41-bf43-ae7ce4cc419f" />
+
 
 ---
 
 ## AI Result
 
-(Add Screenshot)
+<img width="1453" height="798" alt="image" src="https://github.com/user-attachments/assets/9824cc1b-58a2-49b8-8f4a-f19a76fca9e7" />
+
 
 ---
 
 ## Email Report
 
-(Add Screenshot)
+<img width="1209" height="845" alt="image" src="https://github.com/user-attachments/assets/cea56588-de19-466e-9bdc-20e25848ca23" />
+
 
 ---
 
-## Admin Dashboard
-
-(Add Screenshot)
-
----
 
 # 🎯 Future Enhancements
 
