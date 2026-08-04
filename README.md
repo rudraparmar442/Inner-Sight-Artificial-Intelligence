@@ -408,6 +408,3 @@ B.Tech (AI & ML)
 GitHub:
 https://github.com/rudraparmar442
 
-LinkedIn:
-https://www.linkedin.com/in/rudra-parmar-551386329/
----
