@@ -17,7 +17,7 @@ const generalLimiter = rateLimit({
     success: false,
     error:   'Too many requests. Please wait a moment before trying again.',
   },
-  skip: (req) => req.path === '/api/health',
+  skip: (req) => req.originalUrl === '/api/health',
 });
 
 // ── AI endpoint: 20 req / 15 min per IP (costs money) ────────

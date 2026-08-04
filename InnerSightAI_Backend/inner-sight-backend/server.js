@@ -76,6 +76,7 @@ app.use('/api/', generalLimiter);
 
 // ── Routes ────────────────────────────────────────────────────
 app.use('/api/health',    healthRoutes);
+app.use('/api',           generalLimiter);
 app.use('/api/mood',      moodRoutes);
 app.use('/api/email',     emailRoutes);
 app.use('/api/sessions',  sessionRoutes);
