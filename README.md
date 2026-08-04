@@ -6,7 +6,6 @@
 ![Node.js](https://img.shields.io/badge/Backend-Node.js-green)
 ![Express](https://img.shields.io/badge/Framework-Express-black)
 ![JavaScript](https://img.shields.io/badge/Frontend-JavaScript-yellow)
-![License](https://img.shields.io/badge/License-MIT-blue)
 
 ---
 
