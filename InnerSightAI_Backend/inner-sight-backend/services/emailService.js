@@ -210,21 +210,23 @@ async function sendAdminNotification(email, count) {
 
   if (!transporter || !adminEmail) {
     console.log(`  [Email] Admin notify: ${email} (total: ${count})`);
-    return;
+    return { sent: false, reason: 'not-configured' };
   }
 
   try {
     const info = await transporter.sendMail({
-        from: `"${process.env.EMAIL_FROM_NAME || "Inner Sight AI"}" <${process.env.EMAIL_FROM}>`,
-        to: email,
-        subject: "Test",
-        html: "<h1>Hello</h1>"
+      from:    `"${process.env.EMAIL_FROM_NAME || 'Inner Sight AI'}" <${process.env.EMAIL_FROM}>`,
+      to:      adminEmail,
+      subject: `New waitlist signup (#${count})`,
+      html:    adminNotifyHtml(email, count),
     });
 
-    console.log(info);
-} catch (err) {
+    console.log(`  [Email] Admin notified: ${email} (total: ${count})`);
+    return { sent: true, info };
+  } catch (err) {
     console.error("SendMail Error:", err);
     throw err;
+  }
 }
 
 module.exports = { sendWelcomeEmail, sendMoodResultEmail, sendAdminNotification };
