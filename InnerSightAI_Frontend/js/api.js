@@ -14,7 +14,7 @@ const InnerSightAPI = (() => {
   // ── Config ──────────────────────────────────────────────────
   const CONFIG = {
     // Apna backend URL yahan daalo
-    BASE_URL: 'http://localhost:5000/api',
+    BASE_URL: 'https://inner-sight-ai-backend.onrender.com',
 
     // Timeout: 8 seconds (AI call ke liye)
     TIMEOUT_MS: 8000,
