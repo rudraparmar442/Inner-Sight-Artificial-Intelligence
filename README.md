@@ -411,25 +411,3 @@ https://github.com/rudraparmar442
 LinkedIn:
 https://www.linkedin.com/in/rudra-parmar-551386329/
 ---
-
-# ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
-
----
-
-# 📄 License
-
-This project is licensed under the MIT License.
-
----
-
-# ⭐ Support
-
-If you found this project useful, consider giving it a ⭐ on GitHub.
-
----
-
-# 📄 License
-
-This project is licensed under the MIT License.
