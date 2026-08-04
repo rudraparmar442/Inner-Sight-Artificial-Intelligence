@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inner Sight AI — Know Your Mood. Find Your Calm.</title>
+  <meta name="description" content="Inner Sight AI predicts your current mood through smart, adaptive questions and gives you personalised solutions to relax, recharge, and feel better — instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <span class="logo-eye">◎</span>
+        <span>Inner Sight AI</span>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="quiz.html" class="nav-link">Mood Quiz</a>
+        <a href="about.html" class="nav-link">About</a>
+        <a href="quiz.html" class="nav-cta">Begin →</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="grid-lines"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-eyebrow reveal">
+        <span class="dot-pulse"></span>
+        AI-Powered Emotional Intelligence
+      </div>
+      <h1 class="hero-title reveal reveal-delay-1">
+        Your mind<br/>
+        <em>speaks.</em><br/>
+        We listen.
+      </h1>
+      <p class="hero-sub reveal reveal-delay-2">
+        Inner Sight AI reads between the lines of how you feel right now — not keywords, but real understanding. Answer a few questions. We predict your mood. You get calm.
+      </p>
+      <div class="hero-actions reveal reveal-delay-3">
+        <a href="quiz.html" class="btn-primary">
+          <span>Discover Your Mood</span>
+          <span class="btn-arrow">→</span>
+        </a>
+        <a href="about.html" class="btn-ghost">How it works</a>
+      </div>
+      <div class="hero-stat reveal reveal-delay-4">
+        <div class="stat-item">
+          <span class="stat-num">107</span>
+          <span class="stat-label">people validated this</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">6</span>
+          <span class="stat-label">mood dimensions</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-num">60s</span>
+          <span class="stat-label">to your result</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual reveal reveal-delay-2">
+      <div class="mood-sphere">
+        <div class="sphere-ring ring-1"></div>
+        <div class="sphere-ring ring-2"></div>
+        <div class="sphere-ring ring-3"></div>
+        <div class="sphere-core">
+          <span class="sphere-emoji" id="heroEmoji">🌊</span>
+        </div>
+        <div class="mood-label" id="moodLabel">Calm</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section-how">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">The Process</span>
+        <h2 class="section-title">Three steps to clarity</h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step-card reveal">
+          <div class="step-num">01</div>
+          <div class="step-icon">💬</div>
+          <h3>We ask. You answer.</h3>
+          <p>Short, empathetic questions that adapt to your responses. Not a questionnaire — a conversation.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-1">
+          <div class="step-num">02</div>
+          <div class="step-icon">🧠</div>
+          <h3>AI reads your mood.</h3>
+          <p>Our engine analyses context, tone, and patterns — going far beyond simple keyword matching.</p>
+        </div>
+        <div class="step-card reveal reveal-delay-2">
+          <div class="step-num">03</div>
+          <div class="step-icon">✨</div>
+          <h3>Your solution appears.</h3>
+          <p>Breathing exercises, music, journaling prompts, or movement — tailored to exactly how you feel.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MOOD SHOWCASE -->
+  <section class="section-moods">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">What we detect</span>
+        <h2 class="section-title">Every shade of feeling</h2>
+      </div>
+      <div class="mood-cards">
+        <div class="mood-card" data-mood="anxious" data-color="#C0392B">
+          <div class="mood-card-icon">😰</div>
+          <div class="mood-card-name">Anxious</div>
+          <div class="mood-card-desc">Racing thoughts, tension, overwhelm</div>
+          <div class="mood-card-solution">→ 4-7-8 Breathing</div>
+        </div>
+        <div class="mood-card" data-mood="sad" data-color="#5D6D7E">
+          <div class="mood-card-icon">😔</div>
+          <div class="mood-card-name">Low</div>
+          <div class="mood-card-desc">Heavy, quiet, disconnected</div>
+          <div class="mood-card-solution">→ Guided Journal</div>
+        </div>
+        <div class="mood-card active" data-mood="calm" data-color="#2E8B9A">
+          <div class="mood-card-icon">🌊</div>
+          <div class="mood-card-name">Calm</div>
+          <div class="mood-card-desc">Centred, still, at ease</div>
+          <div class="mood-card-solution">→ Ambient Music</div>
+        </div>
+        <div class="mood-card" data-mood="neutral" data-color="#7D8C9A">
+          <div class="mood-card-icon">😐</div>
+          <div class="mood-card-name">Neutral</div>
+          <div class="mood-card-desc">Balanced, neither high nor low</div>
+          <div class="mood-card-solution">→ Mindful Walk</div>
+        </div>
+        <div class="mood-card" data-mood="happy" data-color="#F0A500">
+          <div class="mood-card-icon">😊</div>
+          <div class="mood-card-name">Happy</div>
+          <div class="mood-card-desc">Light, positive, grateful</div>
+          <div class="mood-card-solution">→ Creative Flow</div>
+        </div>
+        <div class="mood-card" data-mood="energised" data-color="#27AE60">
+          <div class="mood-card-icon">⚡</div>
+          <div class="mood-card-name">Energised</div>
+          <div class="mood-card-desc">Alert, motivated, ready</div>
+          <div class="mood-card-solution">→ Box Breathing</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY INNER SIGHT -->
+  <section class="section-why">
+    <div class="container">
+      <div class="why-grid">
+        <div class="why-text">
+          <span class="section-tag">Why us</span>
+          <h2 class="section-title">Not just another<br/><em>wellness app.</em></h2>
+          <p class="why-para">Most tools ask "how are you?" and give generic advice. Inner Sight AI actually <em>understands</em> how you are — and why — before suggesting anything.</p>
+          <div class="why-points">
+            <div class="why-point">
+              <span class="why-icon">◉</span>
+              <div>
+                <strong>Context-aware, not keyword-driven</strong>
+                <p>Traditional NLP sees "tired" and says "sleep more." We see the whole picture.</p>
+              </div>
+            </div>
+            <div class="why-point">
+              <span class="why-icon">◉</span>
+              <div>
+                <strong>Adaptive questioning</strong>
+                <p>Every question responds to your last answer. No two journeys are the same.</p>
+              </div>
+            </div>
+            <div class="why-point">
+              <span class="why-icon">◉</span>
+              <div>
+                <strong>Solutions that match the moment</strong>
+                <p>Anxious at 2am gets a different response than anxious before a meeting.</p>
+              </div>
+            </div>
+          </div>
+          <a href="quiz.html" class="btn-primary" style="margin-top: 2rem; display: inline-flex;">
+            <span>Try it now</span>
+            <span class="btn-arrow">→</span>
+          </a>
+        </div>
+        <div class="why-visual">
+          <div class="comparison-card old">
+            <div class="comp-label">Others</div>
+            <div class="comp-flow">
+              <div class="comp-step">How are you?</div>
+              <div class="comp-arrow">↓</div>
+              <div class="comp-step">Stressed</div>
+              <div class="comp-arrow">↓</div>
+              <div class="comp-step bad">Try meditation 🙂</div>
+            </div>
+          </div>
+          <div class="comparison-card new">
+            <div class="comp-label gold">Inner Sight AI</div>
+            <div class="comp-flow">
+              <div class="comp-step">7 adaptive questions</div>
+              <div class="comp-arrow">↓</div>
+              <div class="comp-step">Context + emotion mapped</div>
+              <div class="comp-arrow">↓</div>
+              <div class="comp-step good">4-7-8 breathing for your specific tension pattern ✓</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMAIL CAPTURE -->
+  <section class="section-cta">
+    <div class="container">
+      <div class="cta-card">
+        <div class="cta-orb"></div>
+        <div class="cta-content">
+          <h2 class="cta-title">Be among the first to know yourself.</h2>
+          <p class="cta-sub">Join our early community. No spam — only updates on new mood features and launch news.</p>
+          <form class="email-form" id="emailForm">
+            <input type="email" class="email-input" placeholder="your@email.com" required />
+            <button type="submit" class="btn-primary">
+              <span>Join Waitlist</span>
+              <span class="btn-arrow">→</span>
+            </button>
+          </form>
+          <p class="form-note">107 people already validated this. You're in good company.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="index.html" class="nav-logo">
+            <span class="logo-eye">◎</span>
+            <span>Inner Sight AI</span>
+          </a>
+          <p>Real meaning-aware AI for emotional intelligence.</p>
+        </div>
+        <div class="footer-links">
+          <a href="quiz.html">Mood Quiz</a>
+          <a href="about.html">About</a>
+          <a href="#">Privacy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Inner Sight AI. All rights reserved.</span>
+        <span>Built with empathy.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

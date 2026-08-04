@@ -1,0 +1,143 @@
+/* ════════════════════════════════════════════════
+   INNER SIGHT AI — Quiz Extra Styles
+   css/quiz-extra.css
+   Result page additions: feedback, email, meta
+════════════════════════════════════════════════ */
+
+/* ── Result meta (confidence + source) ──────── */
+.result-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(138,154,181,0.1);
+}
+.result-confidence {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--teal-light);
+  letter-spacing: 0.06em;
+}
+.result-source {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.05em;
+}
+.result-secondary {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--dim);
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.04em;
+}
+
+/* ── Solution card animation ─────────────────── */
+.solution-card {
+  animation: fadeSlideUp 0.4s ease both;
+}
+@keyframes fadeSlideUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.solution-body { flex: 1; }
+
+/* ── Email result section ────────────────────── */
+.email-result-section {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.5rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(138,154,181,0.1);
+  border-radius: var(--r-md);
+}
+.email-result-label {
+  font-size: 0.82rem;
+  color: var(--mid);
+  margin-bottom: 0.75rem;
+}
+.email-result-form {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.email-result-form .email-input {
+  flex: 1;
+  min-width: 180px;
+  padding: 0.7rem 1.2rem;
+  font-size: 0.85rem;
+}
+.email-result-form .btn-primary {
+  padding: 0.7rem 1.4rem;
+  font-size: 0.85rem;
+}
+
+/* ── Feedback widget ─────────────────────────── */
+.feedback-widget {
+  padding: 1rem 1.5rem;
+  background: rgba(200,150,12,0.05);
+  border: 1px solid rgba(200,150,12,0.15);
+  border-radius: var(--r-md);
+  margin-bottom: 1.25rem;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+.feedback-widget.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: all;
+}
+.feedback-q {
+  font-size: 0.85rem;
+  color: var(--mid);
+  margin-bottom: 0.75rem;
+}
+.feedback-btns {
+  display: flex;
+  gap: 0.75rem;
+}
+.feedback-btn {
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px;
+  border: 1px solid rgba(138,154,181,0.2);
+  background: transparent;
+  color: var(--mid);
+  font-size: 0.85rem;
+  cursor: none;
+  transition: all 0.25s;
+  font-family: var(--font-body);
+}
+.feedback-btn.yes:hover { background: rgba(39,174,96,0.15); border-color: #27AE60; color: #27AE60; }
+.feedback-btn.no:hover  { background: rgba(192,57,43,0.15); border-color: #C0392B; color: #C0392B; }
+.feedback-thanks {
+  font-size: 0.9rem;
+  color: var(--gold-light);
+  padding: 0.25rem 0;
+}
+
+/* ── Load steps ──────────────────────────────── */
+.load-step {
+  font-size: 0.85rem;
+  color: var(--dim);
+  transition: color 0.4s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0;
+}
+.load-step.active { color: var(--teal-light); }
+.load-step.active::before { content: '◉ '; }
+.load-step.done { color: var(--gold-light); }
+.load-step.done::before { content: '✓ '; }
+
+/* ── Result layout responsive ────────────────── */
+@media (max-width: 768px) {
+  .result-layout {
+    grid-template-columns: 1fr !important;
+    padding: 0 1rem;
+  }
+  .email-result-form { flex-direction: column; }
+}

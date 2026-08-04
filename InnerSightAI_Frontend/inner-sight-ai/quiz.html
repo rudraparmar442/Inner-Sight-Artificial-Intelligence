@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mood Quiz — Inner Sight AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/quiz-extra.css"/>
+</head>
+<body class="quiz-body">
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo"><span class="logo-eye">◎</span><span>Inner Sight AI</span></a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="quiz.html" class="nav-link active">Mood Quiz</a>
+        <a href="about.html" class="nav-link">About</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="quiz-bg"><div class="orb orb-1"></div><div class="orb orb-2" style="animation-delay:-3s;"></div></div>
+
+  <main class="quiz-main">
+
+    <!-- INTRO -->
+    <div class="quiz-screen active" id="screen-intro">
+      <div class="quiz-card intro-card">
+        <div class="intro-eye">◎</div>
+        <h1 class="intro-title">Kaisa feel ho raha hai,<br/><em>sach mein?</em></h1>
+        <p class="intro-sub">7 chote sawaal. Hum tumhara mood predict karenge aur tumhare liye ek personalised plan taiyaar karenge — abhi ke liye.</p>
+        <div class="intro-badges">
+          <span class="badge">⏱ 60 seconds</span>
+          <span class="badge">🔒 Private</span>
+          <span class="badge">🎯 Personalised</span>
+          <span class="badge">🧠 AI-Powered</span>
+        </div>
+        <button class="btn-primary btn-large" onclick="startQuiz()">
+          <span>Shuru Karein</span><span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- QUESTION -->
+    <div class="quiz-screen" id="screen-question">
+      <div class="quiz-card question-card">
+        <div class="quiz-progress">
+          <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+          <span class="progress-text" id="progressText">1 / 7</span>
+        </div>
+        <div class="question-content">
+          <div class="question-tag" id="questionTag">Opening</div>
+          <h2 class="question-text" id="questionText"></h2>
+          <div class="options-grid" id="optionsGrid"></div>
+        </div>
+        <div class="quiz-nav">
+          <button class="btn-back" id="backBtn" onclick="goBack()" style="display:none;">← Wapas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="quiz-screen" id="screen-loading">
+      <div class="quiz-card loading-card">
+        <div class="loading-orb">
+          <div class="loading-ring r1"></div>
+          <div class="loading-ring r2"></div>
+          <div class="loading-ring r3"></div>
+          <span class="loading-eye">◎</span>
+        </div>
+        <h2 class="loading-title">Tumhara mood samajh raha hoon…</h2>
+        <div class="loading-steps">
+          <div class="load-step" id="loadStep1">Tumhare jawab analyse ho rahe hain</div>
+          <div class="load-step" id="loadStep2">Emotional context map ho raha hai</div>
+          <div class="load-step" id="loadStep3">Tumhara personalised plan tayaar ho raha hai</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="quiz-screen" id="screen-result">
+      <div class="result-layout">
+
+        <!-- Left: Mood card -->
+        <div class="result-mood-card" id="resultMoodCard">
+          <div class="result-label">Abhi tumhara mood</div>
+          <div class="result-emoji" id="resultEmoji">🌊</div>
+          <div class="result-name" id="resultName">Calm</div>
+          <div class="result-secondary" id="resultSecondary" style="display:none;"></div>
+          <div class="result-desc" id="resultDesc"></div>
+          <div class="result-meter">
+            <div class="meter-label">Intensity</div>
+            <div class="meter-bar"><div class="meter-fill" id="meterFill"></div></div>
+            <div class="meter-pct" id="meterPct">72%</div>
+          </div>
+          <div class="result-meta">
+            <span class="result-confidence" id="resultConfidence"></span>
+            <span class="result-source" id="resultSource"></span>
+          </div>
+        </div>
+
+        <!-- Right: Solutions + actions -->
+        <div class="result-solutions">
+          <h3 class="solutions-title">Tumhara personalised plan</h3>
+          <div class="solutions-grid" id="solutionsGrid"></div>
+
+          <!-- Email result -->
+          <div class="email-result-section">
+            <p class="email-result-label">Result email pe chahiye?</p>
+            <form class="email-result-form" onsubmit="handleEmailResult(event)">
+              <input type="email" id="emailResultInput" class="email-input" placeholder="tumhara@email.com"/>
+              <button type="submit" id="emailResultBtn" class="btn-primary">
+                <span>Email Karo</span><span class="btn-arrow">→</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Feedback widget -->
+          <div class="feedback-widget" id="feedbackWidget">
+            <p class="feedback-q">Kya yeh helpful tha?</p>
+            <div class="feedback-btns">
+              <button class="feedback-btn yes" onclick="submitFeedback(true)">👍 Haan</button>
+              <button class="feedback-btn no"  onclick="submitFeedback(false)">👎 Nahi</button>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <button class="btn-primary" onclick="retakeQuiz()">
+              <span>Dobara Try Karo</span><span class="btn-arrow">↺</span>
+            </button>
+            <a href="index.html" class="btn-ghost">← Home</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Load api.js FIRST, then quiz.js, then main.js -->
+  <script src="js/api.js"></script>
+  <script src="js/quiz.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
