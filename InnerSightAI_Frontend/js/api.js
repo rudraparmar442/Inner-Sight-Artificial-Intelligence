@@ -35,21 +35,23 @@ const InnerSightAPI = (() => {
 
   // ── HTTP helpers ─────────────────────────────────────────────
 
-  // Timeout wrapper for fetch
-  function fetchWithTimeout(url, options, ms = CONFIG.TIMEOUT_MS) {
-  const controller = new AbortController();
-    // Pass a reason to abort() so the error is descriptive
-  const timer = setTimeout(() => controller.abort('timeout'), ms);
-  return fetch(url, { ...options, signal: controller.signal })
-    .finally(() => clearTimeout(timer));
+  // Timeout wrapper for fetch — throws a clear, readable error on timeout
+  // instead of a bare "signal is aborted without reason" AbortError.
+  async function fetchWithTimeout(url, options, ms = CONFIG.TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort('timeout'), ms);
+    try {
+      const response = await fetch(url, { ...options, signal: controller.signal });
+      return response;
+    } catch (err) {
+      if (err.name === 'AbortError' || err === 'timeout') {
+        throw new Error(`Request timed out after ${ms}ms`);
+      }
+      throw err;
+    } finally {
+      clearTimeout(timer);
+    }
   }
-
-  function warn(msg, err) {
-    // Access err.reason if the signal was aborted with a specific reason
-    const detail = err?.reason || err?.message || err || '';
-    console.warn('%c[InnerSightAPI]%c ' + msg, 'color:#E84040;font-weight:bold', 'color:inherit', detail);
-  }
-
 
   async function post(path, body, timeoutMs) {
     const url = `${CONFIG.BASE_URL}${path}`;
@@ -231,7 +233,7 @@ const InnerSightAPI = (() => {
       return data;
     } catch (err) {
       warn('Email result failed', err);
-      if (err?.name === 'AbortError') {
+      if (err?.message?.includes('timed out')) {
         return { success: false, message: 'Email is taking longer than usual — it may still arrive shortly.' };
       }
       return { success: false };
