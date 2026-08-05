@@ -37,11 +37,19 @@ const InnerSightAPI = (() => {
 
   // Timeout wrapper for fetch
   function fetchWithTimeout(url, options, ms = CONFIG.TIMEOUT_MS) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), ms);
-    return fetch(url, { ...options, signal: controller.signal })
-      .finally(() => clearTimeout(timer));
+  const controller = new AbortController();
+    // Pass a reason to abort() so the error is descriptive
+  const timer = setTimeout(() => controller.abort('timeout'), ms);
+  return fetch(url, { ...options, signal: controller.signal })
+    .finally(() => clearTimeout(timer));
   }
+
+  function warn(msg, err) {
+    // Access err.reason if the signal was aborted with a specific reason
+    const detail = err?.reason || err?.message || err || '';
+    console.warn('%c[InnerSightAPI]%c ' + msg, 'color:#E84040;font-weight:bold', 'color:inherit', detail);
+  }
+
 
   async function post(path, body, timeoutMs) {
     const url = `${CONFIG.BASE_URL}${path}`;
