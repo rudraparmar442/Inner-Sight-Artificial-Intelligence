@@ -74,7 +74,7 @@ const InnerSightAPI = (() => {
   async function isBackendAlive() {
     if (_backendAlive !== null) return _backendAlive;
     try {
-      const { ok } = await get('/health');
+      const { ok } = await get('/api/health');
       _backendAlive = ok;
       log(_backendAlive ? '✅ Backend connected' : '❌ Backend not responding');
       return _backendAlive;
@@ -104,7 +104,7 @@ const InnerSightAPI = (() => {
     }
 
     try {
-      const { ok, data } = await post('/mood/analyse', {
+      const { ok, data } = await post('/api/mood/analyse', {
         answers,
         scores,
         useAI: true,
@@ -141,7 +141,7 @@ const InnerSightAPI = (() => {
     }
 
     try {
-      const { ok, data } = await post('/email/subscribe', {
+      const { ok, data } = await post('/api/email/subscribe', {
         email,
         source: 'landing-page',
       });
@@ -171,7 +171,7 @@ const InnerSightAPI = (() => {
     if (!alive) return; // non-critical — quietly skip
 
     try {
-      await post('/sessions/save', sessionData);
+      await post('/api/sessions/save', sessionData);
       log('Session saved:', sessionData.sessionId);
     } catch (err) {
       warn('Session save failed (non-critical)', err);
@@ -192,7 +192,7 @@ const InnerSightAPI = (() => {
     if (!alive) return { success: false };
 
     try {
-      const { data } = await post('/mood/feedback', feedback);
+      const { data } = await post('/api/mood/feedback', feedback);
       return data;
     } catch (err) {
       warn('Feedback send failed', err);
@@ -216,7 +216,7 @@ const InnerSightAPI = (() => {
     if (!alive) return { success: false, message: 'Server unavailable.' };
 
     try {
-      const { data } = await post('/email/result', { email, mood, description, sessionId });
+      const { data } = await post('/api/email/result', { email, mood, description, sessionId });
       return data;
     } catch (err) {
       warn('Email result failed', err);
@@ -235,7 +235,7 @@ const InnerSightAPI = (() => {
    */
   async function getSolutions(mood) {
     try {
-      const { ok, data } = await get(`/mood/solutions/${mood}`);
+      const { ok, data } = await get(`/api/mood/solutions/${mood}`);
       if (ok && data.solutions) return data.solutions;
     } catch (err) {
       warn('getSolutions failed', err);
@@ -249,7 +249,7 @@ const InnerSightAPI = (() => {
 
   async function checkHealth() {
     try {
-      const { data } = await get('/health');
+      const { data } = await get('/api/health');
       return data;
     } catch {
       return { status: 'offline' };
