@@ -8,7 +8,6 @@
 //
 //  Backend chhala ho to local fallback automatically use hota hai.
 // ════════════════════════════════════════════════════════════════
-
 const InnerSightAPI = (() => {
 
   // ── Config ──────────────────────────────────────────────────
@@ -44,7 +43,7 @@ const InnerSightAPI = (() => {
       .finally(() => clearTimeout(timer));
   }
 
-  async function post(path, body) {
+  async function post(path, body, timeoutMs) {
     const url = `${CONFIG.BASE_URL}${path}`;
     log('POST ' + path, body);
 
@@ -52,17 +51,17 @@ const InnerSightAPI = (() => {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify(body),
-    });
+    }, timeoutMs);
 
     const data = await res.json();
     log('← ' + path, data);
     return { ok: res.ok, status: res.status, data };
   }
 
-  async function get(path) {
+  async function get(path, timeoutMs) {
     const url = `${CONFIG.BASE_URL}${path}`;
     log('GET ' + path);
-    const res = await fetchWithTimeout(url);
+    const res = await fetchWithTimeout(url, {}, timeoutMs);
     const data = await res.json();
     return { ok: res.ok, status: res.status, data };
   }
@@ -211,15 +210,22 @@ const InnerSightAPI = (() => {
    * @param {string} description
    * @param {string} sessionId
    */
+  // Emails (Gmail SMTP) can be slow, especially on a cold Render instance —
+  // give this call much more time than the default 8s before giving up.
+  const EMAIL_TIMEOUT_MS = 25000;
+
   async function emailResult(email, mood, description, sessionId) {
     const alive = await isBackendAlive();
     if (!alive) return { success: false, message: 'Server unavailable.' };
 
     try {
-      const { data } = await post('/api/email/result', { email, mood, description, sessionId });
+      const { data } = await post('/api/email/result', { email, mood, description, sessionId }, EMAIL_TIMEOUT_MS);
       return data;
     } catch (err) {
       warn('Email result failed', err);
+      if (err?.name === 'AbortError') {
+        return { success: false, message: 'Email is taking longer than usual — it may still arrive shortly.' };
+      }
       return { success: false };
     }
   }
