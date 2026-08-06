@@ -18,6 +18,14 @@ const InnerSightAPI = (() => {
     // Timeout: 8 seconds (AI call ke liye)
     TIMEOUT_MS: 8000,
 
+    // How long to trust a previous isBackendAlive() result before
+    // re-checking. Was permanent (cached for the whole page lifetime),
+    // which meant a health check that hit during a Render cold start
+    // would mark the backend "dead" for the rest of the session even
+    // after it woke up. 45s keeps the health-check cost down without
+    // getting stuck on a stale answer.
+    BACKEND_ALIVE_TTL_MS: 45000,
+
     // Debug logs on/off
     DEBUG: true,
   };
@@ -78,17 +86,31 @@ const InnerSightAPI = (() => {
 
   // ── Connection check ─────────────────────────────────────────
   // Backend chal raha hai ya nahi check karta hai
+  //
+  // Cached with a TTL rather than forever — a single failed check
+  // (e.g. during a Render cold start) no longer permanently marks
+  // the backend "dead" for the rest of the page session. Any call
+  // site can also force a fresh check with isBackendAlive(true),
+  // which is used automatically as a retry when a live call fails
+  // right after a cached "alive" reading.
   let _backendAlive = null;
+  let _backendAliveCheckedAt = 0;
 
-  async function isBackendAlive() {
-    if (_backendAlive !== null) return _backendAlive;
+  async function isBackendAlive(forceRefresh = false) {
+    const isFresh = _backendAlive !== null &&
+      (Date.now() - _backendAliveCheckedAt) < CONFIG.BACKEND_ALIVE_TTL_MS;
+
+    if (isFresh && !forceRefresh) return _backendAlive;
+
     try {
       const { ok } = await get('/api/health');
       _backendAlive = ok;
+      _backendAliveCheckedAt = Date.now();
       log(_backendAlive ? '✅ Backend connected' : '❌ Backend not responding');
       return _backendAlive;
     } catch {
       _backendAlive = false;
+      _backendAliveCheckedAt = Date.now();
       warn('Backend not reachable — using local fallback mode');
       return false;
     }
@@ -220,9 +242,12 @@ const InnerSightAPI = (() => {
    * @param {string} description
    * @param {string} sessionId
    */
-  // Emails (Gmail SMTP) can be slow, especially on a cold Render instance —
-  // give this call much more time than the default 8s before giving up.
-  const EMAIL_TIMEOUT_MS = 25000;
+  // The /api/email/result backend route now responds immediately and
+  // sends the actual email in the background (fire-and-forget), so
+  // this call no longer waits on SMTP — the old 25s allowance for a
+  // cold Render instance + Gmail SMTP round-trip isn't needed anymore.
+  // Falls back to the shared default (8000ms) like other calls.
+  const EMAIL_TIMEOUT_MS = CONFIG.TIMEOUT_MS;
 
   async function emailResult(email, mood, description, sessionId) {
     const alive = await isBackendAlive();
@@ -230,11 +255,14 @@ const InnerSightAPI = (() => {
 
     try {
       const { data } = await post('/api/email/result', { email, mood, description, sessionId }, EMAIL_TIMEOUT_MS);
+      // Backend now returns { success: true, queued: true, message }
+      // meaning the email was accepted and queued, not necessarily
+      // delivered yet.
       return data;
     } catch (err) {
       warn('Email result failed', err);
       if (err?.message?.includes('timed out')) {
-        return { success: false, message: 'Email is taking longer than usual — it may still arrive shortly.' };
+        return { success: false, message: 'Could not reach the server. Please try again.' };
       }
       return { success: false };
     }
@@ -282,7 +310,7 @@ const InnerSightAPI = (() => {
     getSolutions,
     checkHealth,
     isBackendAlive,
-    setBaseUrl: (url) => { CONFIG.BASE_URL = url; _backendAlive = null; },
+    setBaseUrl: (url) => { CONFIG.BASE_URL = url; _backendAlive = null; _backendAliveCheckedAt = 0; },
   };
 
 })();

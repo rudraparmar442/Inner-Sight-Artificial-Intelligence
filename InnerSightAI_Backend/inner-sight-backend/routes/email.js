@@ -75,6 +75,12 @@ router.post('/subscribe', emailLimiter, [
 //  POST /api/email/result
 //  Body: { email, mood, description, sessionId }
 //  Sends mood result to user's email
+//
+//  NOTE: This used to `await sendMoodResultEmail(...)` before responding,
+//  which held the HTTP request open for the full SMTP round-trip
+//  (worse on a cold Render instance) and regularly blew past the
+//  frontend's 25s timeout. Now it responds immediately and sends the
+//  email in the background, same pattern as /subscribe above.
 // ══════════════════════════════════════════════
 router.post('/result', emailLimiter, [
   body('email').isEmail().normalizeEmail(),
@@ -88,15 +94,25 @@ router.post('/result', emailLimiter, [
       return res.status(422).json({ success: false, error: errors.array()[0].msg });
     }
 
-    const { email, mood, description } = req.body;
+    const { email, mood, description, sessionId } = req.body;
     const solutions = getSolutions(mood);
 
-    await sendMoodResultEmail(email, mood, description, solutions);
-
+    // Respond immediately — don't make the client wait on SMTP.
     res.json({
       success: true,
-      message: `Your mood result has been sent to ${email}`,
+      queued:  true,
+      message: `We're sending your mood result to ${email}`,
     });
+
+    // Send in the background; log failures instead of throwing into a
+    // response that's already gone out.
+    sendMoodResultEmail(email, mood, description, solutions)
+      .then(() => {
+        console.log(`  [Email] Result sent to ${email} (session ${sessionId})`);
+      })
+      .catch(err => {
+        console.warn(`  [Email] Result send failed for ${email} (session ${sessionId}):`, err?.message);
+      });
 
   } catch (err) {
     next(err);
