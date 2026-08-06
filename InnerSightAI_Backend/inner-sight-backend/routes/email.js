@@ -107,8 +107,12 @@ router.post('/result', emailLimiter, [
     // Send in the background; log failures instead of throwing into a
     // response that's already gone out.
     sendMoodResultEmail(email, mood, description, solutions)
-      .then(() => {
-        console.log(`  [Email] Result sent to ${email} (session ${sessionId})`);
+      .then((result) => {
+        if (result?.sent) {
+          console.log(`  [Email] Result sent to ${email} (session ${sessionId})`);
+        } else {
+          console.warn(`  [Email] Result NOT sent to ${email} (session ${sessionId}) — reason: ${result?.reason || 'unknown'}`);
+        }
       })
       .catch(err => {
         console.warn(`  [Email] Result send failed for ${email} (session ${sessionId}):`, err?.message);
