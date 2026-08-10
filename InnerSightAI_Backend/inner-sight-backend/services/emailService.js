@@ -19,9 +19,13 @@ function createTransporter() {
       user: process.env.EMAIL_FROM,
       pass: process.env.EMAIL_APP_PASSWORD,
     },
-    connectionTimeout: 10000, // 10s to establish connection
-    greetingTimeout: 10000,   // 10s for SMTP greeting
-    socketTimeout: 15000,     // 15s for the whole socket operation
+    // Without these, a blocked/slow outbound SMTP connection (common on
+    // hosts like Render) can hang indefinitely with no error and no log
+    // line — the promise just never resolves or rejects. These force a
+    // fast, visible failure instead.
+    connectionTimeout: 10000, // 10s to establish the TCP connection
+    greetingTimeout:   10000, // 10s to receive the SMTP greeting
+    socketTimeout:     15000, // 15s for the whole socket operation
   });
 
   transporter.verify(function (error, success) {
@@ -128,7 +132,7 @@ function moodResultEmailHtml(mood, description, solutions) {
   const name  = mood.charAt(0).toUpperCase() + mood.slice(1);
 
   const solutionItems = solutions.slice(0, 3).map(s =>
-    `<li style="padding:12px 0;border-botto7m:1px solid rgba(138,154,181,0.1);color:#8A9AB5;font-size:14px;line-height:1.6;">
+    `<li style="padding:12px 0;border-bottom:1px solid rgba(138,154,181,0.1);color:#8A9AB5;font-size:14px;line-height:1.6;">
       <strong style="color:#F5EFE0;">${s.icon} ${s.name}</strong><br/>${s.desc}
      </li>`
   ).join('');
@@ -204,6 +208,7 @@ async function sendMoodResultEmail(email, mood, description, solutions) {
     html:    moodResultEmailHtml(mood, description, solutions),
   });
 
+  console.log(`  [Email] Mood result sent to: ${email}`);
   return { sent: true };
 }
 
