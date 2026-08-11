@@ -1,42 +1,41 @@
 // ── services/emailService.js ──────────────────────────────────
-// Nodemailer email sending for:
+// Resend-based email sending for:
 //   1. Waitlist welcome email → new subscriber
 //   2. Mood result email      → user (optional)
 //   3. Admin notification     → you, on each new signup
+//
+// Switched from Nodemailer/Gmail SMTP to Resend because outbound SMTP
+// (port 465/587) is frequently blocked or throttled on hosts like
+// Render's free tier — requests would hang indefinitely with no error
+// and no log line. Resend sends over normal HTTPS, so it isn't
+// affected by that class of restriction, and failures come back as
+// real, loggable errors instead of silent hangs.
+//
+// Setup:
+//   npm install resend        (run in this backend folder)
+//   Add RESEND_API_KEY to your environment (Render → Environment tab)
+//   Optionally verify a sending domain at resend.com/domains — until
+//   then, EMAIL_FROM must be an address ending in the shared
+//   "onboarding@resend.dev" sender or a verified domain of your own.
 
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
-// ── Create transporter ────────────────────────────────────────
-function createTransporter() {
-  if (!process.env.EMAIL_FROM || !process.env.EMAIL_APP_PASSWORD) {
-    console.log("Missing email environment variables");
+// ── Create client ────────────────────────────────────────────
+function createClient() {
+  if (!process.env.RESEND_API_KEY) {
+    console.log("Missing RESEND_API_KEY environment variable");
     return null;
   }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_FROM,
-      pass: process.env.EMAIL_APP_PASSWORD,
-    },
-    // Without these, a blocked/slow outbound SMTP connection (common on
-    // hosts like Render) can hang indefinitely with no error and no log
-    // line — the promise just never resolves or rejects. These force a
-    // fast, visible failure instead.
-    connectionTimeout: 10000, // 10s to establish the TCP connection
-    greetingTimeout:   10000, // 10s to receive the SMTP greeting
-    socketTimeout:     15000, // 15s for the whole socket operation
-  });
-
-  transporter.verify(function (error, success) {
-    if (error) {
-      console.error("SMTP Error:", error);
-    } else {
-      console.log("SMTP Server Ready");
-    }
-  });
-
-  return transporter;
+function fromAddress() {
+  // Falls back to Resend's shared testing sender if you haven't
+  // verified your own domain yet. Once you verify a domain at
+  // resend.com/domains, set EMAIL_FROM to an address on that domain.
+  return process.env.EMAIL_FROM
+    ? `${process.env.EMAIL_FROM_NAME || 'Inner Sight AI'} <${process.env.EMAIL_FROM}>`
+    : 'Inner Sight AI <onboarding@resend.dev>';
 }
 
 // ── Email base template ───────────────────────────────────────
@@ -177,62 +176,87 @@ function adminNotifyHtml(email, count) {
 // ══════════════════════════════════════════════
 
 async function sendWelcomeEmail(email) {
-  const transporter = createTransporter();
-  if (!transporter) {
+  const resend = createClient();
+  if (!resend) {
     console.log(`  [Email] Not configured — would send welcome to: ${email}`);
     return { sent: false, reason: 'not-configured' };
   }
 
-  await transporter.sendMail({
-    from:    `"${process.env.EMAIL_FROM_NAME || 'Inner Sight AI'}" <${process.env.EMAIL_FROM}>`,
-    to:      email,
-    subject: '🌊 You\'re on the Inner Sight AI waitlist',
-    html:    welcomeEmailHtml(email),
-  });
+  try {
+    const { data, error } = await resend.emails.send({
+      from:    fromAddress(),
+      to:      email,
+      subject: '🌊 You\'re on the Inner Sight AI waitlist',
+      html:    welcomeEmailHtml(email),
+    });
 
-  console.log(`  [Email] Welcome sent to: ${email}`);
-  return { sent: true };
+    if (error) {
+      console.error("Resend Error (welcome):", error);
+      return { sent: false, reason: error.message || 'send-failed' };
+    }
+
+    console.log(`  [Email] Welcome sent to: ${email} (id: ${data?.id})`);
+    return { sent: true, id: data?.id };
+  } catch (err) {
+    console.error("Resend Error (welcome):", err);
+    return { sent: false, reason: err.message };
+  }
 }
 
 async function sendMoodResultEmail(email, mood, description, solutions) {
-  const transporter = createTransporter();
-  if (!transporter) {
+  const resend = createClient();
+  if (!resend) {
     console.log(`  [Email] Not configured — would send mood result to: ${email}`);
     return { sent: false, reason: 'not-configured' };
   }
 
-  await transporter.sendMail({
-    from:    `"${process.env.EMAIL_FROM_NAME || 'Inner Sight AI'}" <${process.env.EMAIL_FROM}>`,
-    to:      email,
-    subject: `Your Inner Sight AI mood result: ${mood.charAt(0).toUpperCase() + mood.slice(1)} ${mood === 'calm' ? '🌊' : mood === 'anxious' ? '😰' : '✨'}`,
-    html:    moodResultEmailHtml(mood, description, solutions),
-  });
+  try {
+    const { data, error } = await resend.emails.send({
+      from:    fromAddress(),
+      to:      email,
+      subject: `Your Inner Sight AI mood result: ${mood.charAt(0).toUpperCase() + mood.slice(1)} ${mood === 'calm' ? '🌊' : mood === 'anxious' ? '😰' : '✨'}`,
+      html:    moodResultEmailHtml(mood, description, solutions),
+    });
 
-  console.log(`  [Email] Mood result sent to: ${email}`);
-  return { sent: true };
+    if (error) {
+      console.error("Resend Error (mood result):", error);
+      return { sent: false, reason: error.message || 'send-failed' };
+    }
+
+    console.log(`  [Email] Mood result sent to: ${email} (id: ${data?.id})`);
+    return { sent: true, id: data?.id };
+  } catch (err) {
+    console.error("Resend Error (mood result):", err);
+    return { sent: false, reason: err.message };
+  }
 }
 
 async function sendAdminNotification(email, count) {
-  const transporter  = createTransporter();
-  const adminEmail   = process.env.ADMIN_EMAIL;
+  const resend    = createClient();
+  const adminEmail = process.env.ADMIN_EMAIL;
 
-  if (!transporter || !adminEmail) {
+  if (!resend || !adminEmail) {
     console.log(`  [Email] Admin notify: ${email} (total: ${count})`);
     return { sent: false, reason: 'not-configured' };
   }
 
   try {
-    const info = await transporter.sendMail({
-      from:    `"${process.env.EMAIL_FROM_NAME || 'Inner Sight AI'}" <${process.env.EMAIL_FROM}>`,
+    const { data, error } = await resend.emails.send({
+      from:    fromAddress(),
       to:      adminEmail,
       subject: `New waitlist signup (#${count})`,
       html:    adminNotifyHtml(email, count),
     });
 
-    console.log(`  [Email] Admin notified: ${email} (total: ${count})`);
-    return { sent: true, info };
+    if (error) {
+      console.error("Resend Error (admin notify):", error);
+      throw new Error(error.message || 'send-failed');
+    }
+
+    console.log(`  [Email] Admin notified: ${email} (total: ${count}) (id: ${data?.id})`);
+    return { sent: true, id: data?.id };
   } catch (err) {
-    console.error("SendMail Error:", err);
+    console.error("Resend Error (admin notify):", err);
     throw err;
   }
 }
